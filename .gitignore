@@ -1,0 +1,11 @@
+# Configuração e credenciais exclusivas deste computador.
+/banco.local.properties
+
+# Compilação local com o JDK.
+/build/
+/out/
+/target/
+*.class
+
+# Estado e configurações pessoais da IDE.
+/.idea/
