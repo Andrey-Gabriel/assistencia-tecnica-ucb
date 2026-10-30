@@ -219,16 +219,17 @@ BEGIN
     IF NEW.status <> 'ABERTA' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'uma nova OS deve iniciar como ABERTA.';
     END IF;
+    -- LOCK IN SHARE MODE funciona no MySQL e no MariaDB.
     -- Leitura com bloqueio compartilha a proteção com atualizações do proprietário.
     SELECT id_cliente INTO v_cliente FROM equipamento
-        WHERE id_equipamento = NEW.id_equipamento FOR SHARE;
+        WHERE id_equipamento = NEW.id_equipamento LOCK IN SHARE MODE;
     SET v_ativo = NULL;
-    SELECT ativo INTO v_ativo FROM tecnico WHERE id_tecnico = NEW.id_tecnico FOR SHARE;
+    SELECT ativo INTO v_ativo FROM tecnico WHERE id_tecnico = NEW.id_tecnico LOCK IN SHARE MODE;
     IF v_ativo = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'tecnico inativo nao recebe nova OS.';
     END IF;
     SET v_ativo = NULL;
-    SELECT ativo INTO v_ativo FROM servico WHERE id_servico = NEW.id_servico FOR SHARE;
+    SELECT ativo INTO v_ativo FROM servico WHERE id_servico = NEW.id_servico LOCK IN SHARE MODE;
     IF v_ativo = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'servico inativo nao pode ser escolhido.';
     END IF;
@@ -259,14 +260,14 @@ BEGIN
     END IF;
     IF NEW.id_tecnico <> OLD.id_tecnico THEN
         SET v_ativo = NULL;
-        SELECT ativo INTO v_ativo FROM tecnico WHERE id_tecnico = NEW.id_tecnico FOR SHARE;
+        SELECT ativo INTO v_ativo FROM tecnico WHERE id_tecnico = NEW.id_tecnico LOCK IN SHARE MODE;
         IF v_ativo = 0 THEN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'nao e permitido atribuir tecnico inativo.';
         END IF;
     END IF;
     IF NEW.id_servico <> OLD.id_servico THEN
         SET v_ativo = NULL;
-        SELECT ativo INTO v_ativo FROM servico WHERE id_servico = NEW.id_servico FOR SHARE;
+        SELECT ativo INTO v_ativo FROM servico WHERE id_servico = NEW.id_servico LOCK IN SHARE MODE;
         IF v_ativo = 0 THEN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'nao e permitido atribuir servico inativo.';
         END IF;
